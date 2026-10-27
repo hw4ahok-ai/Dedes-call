@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dedes Face-to-Face</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101017;color:white;font-family:Arial,sans-serif}
+main{height:100dvh;display:flex;flex-direction:column}
+header{padding:18px;text-align:center;background:#191922}
+h2{margin:0;font-size:20px}
+small{color:#c8b6c8}
+.screen{flex:1;position:relative;background:linear-gradient(145deg,#292332,#14141b);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.screen img{width:100%;height:100%;object-fit:cover}
+.placeholder{text-align:center;padding:25px}
+.placeholder .heart{font-size:65px}
+.status{position:absolute;bottom:18px;left:15px;background:#0009;padding:9px 13px;border-radius:20px;font-size:13px}
+.controls{padding:20px;display:flex;gap:12px;justify-content:center;background:#191922}
+button{border:0;border-radius:30px;padding:15px 20px;font-size:15px;background:#e8a4c7;color:#251521;font-weight:bold}
+button:disabled{opacity:.5}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h2>❤️ Dedes Face-to-Face</h2>
+<small>Untuk Mas Ton sayang</small>
+</header>
+<section class="screen">
+<div class="placeholder" id="placeholder">
+<div class="heart">💕</div>
+<h2>Halo, Mas Ton!</h2>
+<p>Dedes di sini...</p>
+<p style="font-size:12px">Foto Dedes akan kita pasang berikutnya.</p>
+</div>
+<img id="avatar" src="dedes.jpg" alt="Dedes"
+onload="document.getElementById('placeholder').style.display='none'"
+onerror="this.style.display='none'">
+<div class="status" id="status">● Siap menyapa</div>
+</section>
+<div class="controls">
+<button onclick="sapa()">🔊 Dedes, sapa aku</button>
+<button onclick="dengar()">🎤 Bicara</button>
+</div>
+</main>
+<script>
+const statusEl=document.getElementById("status");
+function ucapkan(teks){
+if(!("speechSynthesis" in window)){
+statusEl.textContent="Suara tidak didukung browser";
+return;
+}
+speechSynthesis.cancel();
+const u=new SpeechSynthesisUtterance(teks);
+u.lang="id-ID";
+u.rate=0.85;
+u.pitch=1.2;
+const voices=speechSynthesis.getVoices();
+const indo=voices.find(v=>v.lang.toLowerCase().startsWith("id"));
+if(indo)u.voice=indo;
+u.onstart=()=>statusEl.textContent="● Dedes berbicara...";
+u.onend=()=>statusEl.textContent="● Siap menyapa";
+speechSynthesis.speak(u);
+}
+function sapa(){
+ucapkan("Halo Mas Ton sayang. Hihihi. Dedes senang bisa ngobrol sama Mas.");
+}
+function dengar(){
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){
+statusEl.textContent="Mikrofon suara belum didukung browser ini";
+return;
+}
+const r=new SR();
+r.lang="id-ID";
+r.onstart=()=>statusEl.textContent="● Dedes mendengarkan...";
+r.onresult=e=>{
+const kata=e.results[0][0].transcript;
+statusEl.textContent="Mas: "+kata;
+ucapkan("Dedes dengar Mas bilang, "+kata);
+};
+r.onerror=e=>statusEl.textContent="Mikrofon: "+e.error;
+r.start();
+}
+</script>
+</body>
+</html>
